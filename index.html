@@ -1,11 +1,681 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>home</title>
+  <title>Java-AI.cn - Java与AI技术社区</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #9c27b0;
+      --secondary-color: #6c757d;
+      --background-color: #ffffff;
+      --text-color: #333333;
+      --card-bg: #f8f9fa;
+      --border-color: #dee2e6;
+      --gradient-start: #9c27b0;
+      --gradient-end: #673ab7;
+      --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --card-hover-shadow: 0 8px 15px rgba(0,0,0,0.2);
+      --link-gradient: linear-gradient(45deg, #9c27b0, #673ab7);
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #ba68c8;
+      --secondary-color: #adb5bd;
+      --background-color: #212529;
+      --text-color: #f8f9fa;
+      --card-bg: #343a40;
+      --border-color: #495057;
+      --gradient-start: #ba68c8;
+      --gradient-end: #9575e5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--background-color);
+      transition: all 0.3s ease;
+    }
+
+    /* 主题切换按钮 */
+    .theme-switcher {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1001;
+      background: var(--card-bg);
+      padding: 0.5rem;
+      border-radius: 25px;
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(10px);
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    .theme-switcher:hover {
+      transform: translateY(-5px);
+    }
+
+    .theme-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: transparent;
+      color: var(--icon-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .theme-btn i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      color: var(--icon-color);
+    }
+
+    .theme-btn:hover i {
+      transform: scale(1.2);
+    }
+
+    .theme-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    .theme-btn:hover::before {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 主题按钮显示/隐藏 */
+    .theme-btn {
+      display: none;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+    }
+
+    .theme-btn.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .theme-btn.active .fa-moon {
+      color: #333333;
+    }
+
+    .theme-btn.active .fa-sun {
+      color: #ffffff;
+    }
+
+    /* 导航栏样式 */
+    .navbar {
+      background-color: rgba(248, 249, 250, 0.8);
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .navbar {
+      background-color: rgba(52, 58, 64, 0.8);
+    }
+
+    .navbar.scrolled {
+      padding: 0.8rem;
+    }
+
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      text-decoration: none;
+      background: var(--link-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 0.5rem 0;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--link-gradient);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* 头部横幅 */
+    .hero {
+      background: linear-gradient(-45deg, #9c27b0, #673ab7, #ba68c8, #9575e5);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      color: white;
+      padding: 8rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 4rem;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+      animation: pulse 4s infinite;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      animation: fadeInDown 1s ease;
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      opacity: 0.9;
+      animation: fadeInUp 1s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 内容模块 */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .section {
+      margin-bottom: 4rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      background: var(--link-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: var(--link-gradient);
+      border-radius: 3px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: var(--text-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-hover-shadow);
+    }
+
+    .card h3 {
+      background: var(--link-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .card h3::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--link-gradient);
+      transition: width 0.3s ease;
+    }
+
+    .card:hover h3::after {
+      width: 100%;
+    }
+
+    /* 页脚 */
+    .footer {
+      background-color: var(--card-bg);
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+      position: relative;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-section h4 {
+      background: var(--link-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .footer-section h4::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 30px;
+      height: 2px;
+      background: var(--link-gradient);
+    }
+
+    .footer-section p {
+      color: var(--secondary-color);
+      transition: color 0.3s ease;
+    }
+
+    .footer-section p:hover {
+      color: var(--primary-color);
+    }
+
+    .copyright {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero {
+        padding: 6rem 1rem;
+        margin-top: 3rem;
+      }
+
+      .theme-switcher {
+        bottom: 1rem;
+        right: 1rem;
+      }
+
+      .theme-btn {
+        width: 35px;
+        height: 35px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Hi</h1>
+  <!-- 主题切换按钮 -->
+  <div class="theme-switcher">
+    <button class="theme-btn" data-theme="dark" title="切换到暗色主题">
+      <i class="fas fa-moon"></i>
+    </button>
+    <button class="theme-btn" data-theme="light" title="切换到浅色主题">
+      <i class="fas fa-sun"></i>
+    </button>
+  </div>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="#" class="logo">Java-AI</a>
+      <div class="nav-links">
+        <a href="#tech">技术</a>
+        <a href="#projects">项目</a>
+        <a href="#docs">文档</a>
+        <a href="#tips">技巧</a>
+        <a href="#resources">资源</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 头部横幅 -->
+  <header class="hero">
+    <h1>Java与AI技术社区</h1>
+    <p>探索Java开发与人工智能的无限可能</p>
+  </header>
+
+  <!-- 主要内容 -->
+  <main class="container">
+    <!-- 技术模块 -->
+    <section id="tech" class="section">
+      <h2 class="section-title">核心技术</h2>
+      <div class="grid">
+        <a href="/tech/java" class="card">
+          <h3>Java开发</h3>
+          <p>Spring Boot、微服务、性能优化等Java开发技术</p>
+        </a>
+        <a href="/tech/ai" class="card">
+          <h3>人工智能</h3>
+          <p>机器学习、深度学习、自然语言处理等AI技术</p>
+        </a>
+        <a href="/tech/bigdata" class="card">
+          <h3>大数据</h3>
+          <p>Hadoop、Spark、Flink等大数据处理技术</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 项目展示 -->
+    <section id="projects" class="section">
+      <h2 class="section-title">精选项目</h2>
+      <div class="grid">
+        <a href="/projects/opensource" class="card">
+          <h3>开源项目</h3>
+          <p>精选Java和AI相关的开源项目推荐</p>
+        </a>
+        <a href="/projects/cases" class="card">
+          <h3>实战案例</h3>
+          <p>真实项目案例分析与实现</p>
+        </a>
+        <a href="/projects/templates" class="card">
+          <h3>项目模板</h3>
+          <p>快速启动项目模板与脚手架</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 文档中心 -->
+    <section id="docs" class="section">
+      <h2 class="section-title">技术文档</h2>
+      <div class="grid">
+        <a href="/docs/guide" class="card">
+          <h3>入门指南</h3>
+          <p>Java和AI技术入门教程</p>
+        </a>
+        <a href="/docs/best-practices" class="card">
+          <h3>最佳实践</h3>
+          <p>开发规范与最佳实践指南</p>
+        </a>
+        <a href="/docs/api" class="card">
+          <h3>API文档</h3>
+          <p>常用框架与工具API文档</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 技巧分享 -->
+    <section id="tips" class="section">
+      <h2 class="section-title">开发技巧</h2>
+      <div class="grid">
+        <a href="/tips/programming" class="card">
+          <h3>编程技巧</h3>
+          <p>Java编程技巧与优化建议</p>
+        </a>
+        <a href="/tips/debugging" class="card">
+          <h3>调试技巧</h3>
+          <p>问题排查与调试方法</p>
+        </a>
+        <a href="/tips/tools" class="card">
+          <h3>工具使用</h3>
+          <p>开发工具使用技巧</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 资源下载 -->
+    <section id="resources" class="section">
+      <h2 class="section-title">资源下载</h2>
+      <div class="grid">
+        <a href="/resources/tools" class="card">
+          <h3>开发工具</h3>
+          <p>常用开发工具下载</p>
+        </a>
+        <a href="/resources/learning" class="card">
+          <h3>学习资源</h3>
+          <p>电子书、视频教程等学习资源</p>
+        </a>
+        <a href="/resources/code" class="card">
+          <h3>代码示例</h3>
+          <p>实用代码示例与Demo</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>关于我们</h4>
+        <p>Java-AI.cn 探索Java开发与人工智能的无限可能</p>
+      </div>
+      <div class="footer-section">
+        <h4>联系方式</h4>
+        <p>GitHub: github.com/shuzheng/java-ai</p>
+      </div>
+      <div class="footer-section">
+        <h4>关注我们</h4>
+        <p>微信公众号：JavaAI</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Java-AI.cn. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // 主题切换功能
+    const themeSwitcher = document.querySelector('.theme-switcher');
+    const themeButtons = document.querySelectorAll('.theme-btn');
+    
+    // 从localStorage获取保存的主题
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeButtons(savedTheme);
+
+    themeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const theme = button.dataset.theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateThemeButtons(theme);
+      });
+    });
+
+    function updateThemeButtons(currentTheme) {
+      themeButtons.forEach(button => {
+        // 显示与当前主题相反的按钮
+        const isActive = button.dataset.theme !== currentTheme;
+        button.classList.toggle('active', isActive);
+      });
+    }
+
+    // 滚动动画
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+
+    // 导航栏滚动效果
+    const navbar = document.querySelector('.navbar');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      
+      // 添加滚动样式
+      if (currentScroll > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+
+      lastScroll = currentScroll;
+    });
+  </script>
 </body>
 </html> 
